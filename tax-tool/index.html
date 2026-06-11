@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个税计算器2026 - 免费</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;min-height:100vh;padding:20px}
+.container{max-width:800px;margin:0 auto}
+.header{text-align:center;padding:30px 20px;background:linear-gradient(135deg,#065f46,#059669);border-radius:16px;color:#fff;margin-bottom:20px}
+.header h1{font-size:26px;margin-bottom:6px}
+.header p{font-size:14px;opacity:.8}
+.card{background:#fff;border-radius:14px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:16px}
+.card h2{font-size:16px;color:#065f46;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{margin-bottom:4px}
+.form-group label{display:block;font-size:13px;color:#666;margin-bottom:4px}
+.form-group input,.form-group select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:.2s}
+.form-group input:focus,.form-group select:focus{border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.1)}
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,#059669,#047857);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:.2s;margin-top:8px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(5,150,105,.3)}
+.result-box{display:none}
+.result-box.show{display:block}
+.result-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.result-item{text-align:center;padding:16px;background:#f0fdf4;border-radius:10px}
+.result-item .num{font-size:22px;font-weight:700;color:#065f46}
+.result-item .num.red{color:#dc2626}
+.result-item .label{font-size:12px;color:#6b7280;margin-top:4px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f0fdf4;padding:10px 8px;text-align:right;font-weight:500;color:#374151}
+th:first-child{text-align:left}
+td{padding:10px 8px;text-align:right;border-bottom:1px solid #f0fdf4;color:#374151}
+td:first-child{text-align:left}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tabs button{flex:1;padding:10px;border:2px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;transition:.2s}
+.tabs button.active{border-color:#059669;background:#ecfdf5;color:#059669;font-weight:600}
+.share-note{text-align:center;font-size:12px;color:#94a3b8;margin-top:20px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}.result-summary{grid-template-columns:1fr}.header{padding:20px 16px}.header h1{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header"><h1>🧾 个税计算器 2026</h1><p>工资个税 / 年终奖 · 免费计算 · 无需联网</p></div>
+<div class="card">
+<h2>收入信息</h2>
+<div class="tabs"><button class="active" id="tab1" onclick="switchTab('salary')">💰 工资个税</button><button id="tab2" onclick="switchTab('bonus')">🎁 年终奖</button></div>
+<div id="salaryPanel">
+<div class="form-grid">
+<div class="form-group"><label>月薪（元）</label><input type="number" id="salary" value="15000" min="0"></div>
+<div class="form-group"><label>五险一金（元/月）</label><input type="number" id="insurance" value="2000" min="0"></div>
+<div class="form-group"><label>专项附加扣除（元/月）</label><input type="number" id="deduct" value="2000" min="0"></div>
+<div class="form-group"><label>其他扣除（元/月）</label><input type="number" id="other" value="0" min="0"></div>
+</div>
+</div>
+<div id="bonusPanel" style="display:none">
+<div class="form-group"><label>年终奖金额（元）</label><input type="number" id="bonus" value="50000" min="0"></div>
+</div>
+<button class="btn" onclick="calculate()">开始计算</button>
+</div>
+<div class="card result-box" id="resultBox">
+<h2 id="resultTitle">计算结果</h2>
+<div class="result-summary" id="resultSummary"></div>
+<div class="table-wrap" id="tableWrap"></div>
+</div>
+<div class="share-note">免费工具 · 欢迎分享给需要的朋友 💼</div>
+</div>
+<script>
+let mode='salary';
+function switchTab(m){mode=m;document.getElementById('tab1').className=m==='salary'?'active':'';document.getElementById('tab2').className=m==='bonus'?'active':'';document.getElementById('salaryPanel').style.display=m==='salary'?'block':'none';document.getElementById('bonusPanel').style.display=m==='bonus'?'block':'none'}
+function calcTax(income){const brackets=[[0,0,0.03],[36000,2520,0.1],[144000,16920,0.2],[300000,31920,0.25],[420000,52920,0.3],[660000,85920,0.35],[960000,181920,0.45]];for(let i=brackets.length-1;i>=0;i--){const[base,deduct]=brackets[i];if(income>base)return Math.round(income*0.45-deduct);}return 0}
+function calcMonthlyTax(monthlyIncome){const annual=monthlyIncome*12;const tax=calcTax(annual);return Math.round(tax/12)}
+function calcBonusTax(amount){if(amount<=0)return 0;const b=[[0,0,0.03],[3000,0,0.1],[12000,210,0.2],[25000,1410,0.25],[35000,2660,0.3],[55000,4410,0.35],[80000,7160,0.45]];for(let i=b.length-1;i>=0;i--){const [base,deduct,rate]=b[i];if(amount/12>base){return Math.round(amount*rate-deduct)}}return 0}
+function format(n){return n.toLocaleString()}
+function calculate(){
+if(mode==='salary'){
+const salary=parseFloat(document.getElementById('salary').value)||0;const ins=parseFloat(document.getElementById('insurance').value)||0;const ded=parseFloat(document.getElementById('deduct').value)||0;const other=parseFloat(document.getElementById('other').value)||0;const taxable=Math.max(0,salary-5000-ins-ded-other);const monthTax=calcMonthlyTax(taxable);const yearTax=monthTax*12;const afterTax=salary-ins-ded-other-monthTax;document.getElementById('resultTitle').textContent='💰 工资个税计算结果';document.getElementById('resultSummary').innerHTML='<div class="result-item"><div class="num">'+format(monthTax)+'</div><div class="label">月缴个税（元）</div></div><div class="result-item"><div class="num">'+format(yearTax)+'</div><div class="label">年缴个税（元）</div></div><div class="result-item"><div class="num green">'+format(afterTax)+'</div><div class="label">税后月收入（元）</div></div>';document.getElementById('tableWrap').innerHTML='<table><thead><tr><th>项目</th><th>金额（元）</th></tr></thead><tbody><tr><td>税前月薪</td><td>'+format(salary)+'</td></tr><tr><td>减：起征点</td><td>5,000</td></tr><tr><td>减：五险一金</td><td>'+format(ins)+'</td></tr><tr><td>减：专项附加扣除</td><td>'+format(ded)+'</td></tr><tr><td>减：其他扣除</td><td>'+format(other)+'</td></tr><tr><td>应纳税所得额</td><td>'+format(taxable)+'</td></tr><tr><td><strong>月缴个税</strong></td><td><strong>'+format(monthTax)+'</strong></td></tr><tr><td><strong>税后月收入</strong></td><td><strong>'+format(afterTax)+'</strong></td></tr></tbody></table>'
+}else{
+const bonus=parseFloat(document.getElementById('bonus').value)||0;const tax=calcBonusTax(bonus);const after=bonus-tax;document.getElementById('resultTitle').textContent='🎁 年终奖个税计算结果（单独计税）';document.getElementById('resultSummary').innerHTML='<div class="result-item"><div class="num red">'+format(tax)+'</div><div class="label">应缴个税（元）</div></div><div class="result-item"><div class="num green">'+format(after)+'</div><div class="label">到手金额（元）</div></div><div class="result-item"></div>';document.getElementById('tableWrap').innerHTML='<table><thead><tr><th>项目</th><th>金额（元）</th></tr></thead><tbody><tr><td>年终奖金额</td><td>'+format(bonus)+'</td></tr><tr><td><strong>应缴个税</strong></td><td><strong>'+format(tax)+'</strong></td></tr><tr><td><strong>到手金额</strong></td><td><strong>'+format(after)+'</strong></td></tr></tbody></table>'}
+document.getElementById('resultBox').classList.add('show');document.getElementById('resultBox').scrollIntoView({behavior:'smooth',block:'start'})}
+window.onload=calculate
+</script>
+</body>
+</html>
+*** End of File
