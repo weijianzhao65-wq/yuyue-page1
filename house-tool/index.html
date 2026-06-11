@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>房贷计算器 - 2026最新</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f0f2f5;
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.header {
+  text-align: center;
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+  border-radius: 16px;
+  color: white;
+  margin-bottom: 20px;
+}
+.header h1 { font-size: 26px; margin-bottom: 6px; }
+.header p { font-size: 14px; opacity: 0.8; }
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  margin-bottom: 16px;
+}
+.card h2 { font-size: 16px; color: #1a365d; margin-bottom: 16px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { margin-bottom: 4px; }
+.form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
+.form-group input, .form-group select {
+  width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb;
+  border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+.full-width { grid-column: 1 / -1; }
+.btn {
+  width: 100%; padding: 14px; background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white; border: none; border-radius: 10px; font-size: 16px;
+  font-weight: 600; cursor: pointer; transition: 0.2s;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+.result-box { display: none; }
+.result-box.show { display: block; }
+.result-summary {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;
+}
+.result-item {
+  text-align: center; padding: 16px; background: #f8fafc; border-radius: 10px;
+}
+.result-item .num { font-size: 22px; font-weight: 700; color: #1a365d; }
+.result-item .num.green { color: #059669; }
+.result-item .label { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #f1f5f9; padding: 10px 8px; text-align: right; font-weight: 500; color: #475569; }
+th:first-child { text-align: left; }
+td { padding: 10px 8px; text-align: right; border-bottom: 1px solid #f1f5f9; color: #334155; }
+td:first-child { text-align: left; }
+.method-select {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+.method-select button {
+  flex: 1; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px;
+  background: white; cursor: pointer; font-size: 14px; transition: 0.2s;
+}
+.method-select button.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; font-weight: 600; }
+.rate-tip { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+.share-note { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 20px; }
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .result-summary { grid-template-columns: 1fr; }
+  .header { padding: 20px 16px; }
+  .header h1 { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🏠 房贷计算器</h1>
+    <p>2026最新版 · 等额本息 / 等额本金 · 免费使用</p>
+  </div>
+
+  <div class="card">
+    <h2>贷款信息</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>贷款总额（万元）</label>
+        <input type="number" id="total" value="100" min="1">
+      </div>
+      <div class="form-group">
+        <label>贷款年限</label>
+        <select id="years">
+          <option value="30">30年</option>
+          <option value="25">25年</option>
+          <option value="20" selected>20年</option>
+          <option value="15">15年</option>
+          <option value="10">10年</option>
+          <option value="5">5年</option>
+          <option value="3">3年</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>年利率（%）</label>
+        <input type="number" id="rate" value="3.45" step="0.05">
+      </div>
+      <div class="form-group">
+        <label>利率类型</label>
+        <select id="rateType">
+          <option value="lpr">LPR基准 (3.45%)</option>
+          <option value="commercial">商业贷款 (3.45%)</option>
+          <option value="fund">公积金 (2.85%)</option>
+          <option value="custom">自定义</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>还款方式</h2>
+    <div class="method-select">
+      <button class="active" id="btnA" onclick="setMethod('a')">等额本息</button>
+      <button id="btnB" onclick="setMethod('b')">等额本金</button>
+    </div>
+    <button class="btn" onclick="calculate()">开始计算</button>
+  </div>
+
+  <div class="card result-box" id="resultBox">
+    <h2>计算结果</h2>
+    <div class="result-summary">
+      <div class="result-item">
+        <div class="num green" id="monthPay">0</div>
+        <div class="label">月供（元）</div>
+      </div>
+      <div class="result-item">
+        <div class="num" id="totalPay">0</div>
+        <div class="label">还款总额（元）</div>
+      </div>
+      <div class="result-item">
+        <div class="num" id="totalInterest">0</div>
+        <div class="label">总利息（元）</div>
+      </div>
+    </div>
+    <div class="table-wrap" id="tableWrap"></div>
+  </div>
+
+  <div class="share-note">免费工具，欢迎分享给需要的朋友 🏡</div>
+</div>
+
+<script>
+let method = 'a';
+function setMethod(m) {
+  method = m;
+  document.getElementById('btnA').className = m === 'a' ? 'active' : '';
+  document.getElementById('btnB').className = m === 'b' ? 'active' : '';
+}
+document.getElementById('rateType').onchange = function() {
+  const vals = { lpr: 3.45, commercial: 3.45, fund: 2.85, custom: document.getElementById('rate').value };
+  if (this.value !== 'custom') document.getElementById('rate').value = vals[this.value];
+};
+function calculate() {
+  const total = parseFloat(document.getElementById('total').value) * 10000;
+  const years = parseInt(document.getElementById('years').value);
+  const rate = parseFloat(document.getElementById('rate').value) / 100 / 12;
+  const n = years * 12;
+  let monthPay, totalPay, totalInterest, schedule = [];
+  if (method === 'a') {
+    const p = rate * Math.pow(1 + rate, n) / (Math.pow(1 + rate, n) - 1);
+    monthPay = total * p;
+    totalPay = monthPay * n;
+    totalInterest = totalPay - total;
+    let remain = total;
+    for (let i = 1; i <= n; i++) {
+      const interest = remain * rate;
+      const principal = monthPay - interest;
+      remain -= principal;
+      schedule.push({i, pay: monthPay, principal, interest, remain: Math.max(0, remain)});
+    }
+  } else {
+    const pPrincipal = total / n;
+    let totalP = 0, totalI = 0;
+    for (let i = 1; i <= n; i++) {
+      const remain = total - (i - 1) * pPrincipal;
+      const interest = remain * rate;
+      const pay = pPrincipal + interest;
+      totalP += pPrincipal; totalI += interest;
+      schedule.push({i, pay, principal: pPrincipal, interest, remain: remain - pPrincipal});
+    }
+    monthPay = schedule[0].pay;
+    totalPay = totalP + totalI;
+    totalInterest = totalI;
+  }
+  document.getElementById('monthPay').textContent = Math.round(monthPay).toLocaleString();
+  document.getElementById('totalPay').textContent = Math.round(totalPay).toLocaleString();
+  document.getElementById('totalInterest').textContent = Math.round(totalInterest).toLocaleString();
+  let html = '<table><thead><tr><th>期数</th><th>月供</th><th>本金</th><th>利息</th><th>剩余本金</th></tr></thead><tbody>';
+  const show = schedule.slice(0, Math.min(36, schedule.length));
+  if (schedule.length > 36) {
+    const last = schedule[schedule.length - 1];
+    show.push(...schedule.slice(-1));
+  }
+  show.forEach(s => {
+    html += '<tr><td>第' + s.i + '期</td><td>' + Math.round(s.pay).toLocaleString() + '</td><td>' + Math.round(s.principal).toLocaleString() + '</td><td>' + Math.round(s.interest).toLocaleString() + '</td><td>' + Math.round(s.remain).toLocaleString() + '</td></tr>';
+  });
+  if (schedule.length > 36) html += '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">... 共' + schedule.length + '期 ...</td></tr>';
+  html += '</tbody></table>';
+  document.getElementById('tableWrap').innerHTML = html;
+  document.getElementById('resultBox').classList.add('show');
+  document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+window.onload = calculate;
+</script>
+</body>
+</html>
+*** End of File
